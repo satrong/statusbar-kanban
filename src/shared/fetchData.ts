@@ -10,6 +10,7 @@ export async function fetchData (stockCode: string[]) {
       'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
     },
     responseType: 'arraybuffer',
+    timeout: 5000,
   }).then(res => {
     const data = decode(res.data, 'gbk');
     return data.split(/\n/).flatMap(el => {
