@@ -1,15 +1,6 @@
 import axios from 'axios';
 import { decode } from 'iconv-lite';
-
-// 保留小数位数
-export function toFixed (num: number | string, fixed = 2) {
-  const re = new RegExp(`^-?\\d+(?:\.\\d{0,${fixed || -1}})?`);
-  const matched = num.toString().match(re);
-  if (!matched) {
-    return Number(num);
-  }
-  return Number(matched[0]);
-}
+import {toFixed} from '../utils';
 
 export async function fetchData (stockCode: string[]) {
   return axios<Buffer>({

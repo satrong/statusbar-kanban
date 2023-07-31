@@ -34,8 +34,8 @@
         },
         "statusbar-kanban.interval": {
           "type": "number",
-          "default": 5,
-          "description": "数据更新时间间隔，单位秒"
+          "default": 10,
+          "description": "数据更新时间间隔，单位秒，默认10秒"
         }
       }
     }

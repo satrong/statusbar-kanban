@@ -1,28 +1,30 @@
 import * as vscode from 'vscode';
-import { fetchData, toFixed } from './fetchData';
+import { toFixed } from './utils';
+import { fetchData } from './shared/fetchData';
+import { isClosed } from './shared/getHoliday';
 
 const extName = 'statusbar-kanban';
 let myStatusBarItem: vscode.StatusBarItem;
 let f: ReturnType<typeof setTimeout>;
 
-export function activate () {
+export async function activate (context: vscode.ExtensionContext) {
 	myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
 
 	// 监听用户修改配置项
 	vscode.workspace.onDidChangeConfiguration(e => {
 		if (e.affectsConfiguration(extName)) {
 			clearTimeout(f);
-			updateStatusBarItem(true);
+			updateStatusBarItem(context, true);
 		}
 	});
 
-	updateStatusBarItem(true);
+	updateStatusBarItem(context, true);
 }
 
 /**
  * @param isInit 是否是初始化，如果是初始化则忽略非交易时间
  */
-function updateStatusBarItem (isInit = false) {
+async function updateStatusBarItem (context: vscode.ExtensionContext, isInit = false) {
 	const userConfig = vscode.workspace.getConfiguration(extName);
 	const stock = userConfig.get<string[]>('stock');
 	const mapped = userConfig.get<Record<string, string>>('map');
@@ -31,7 +33,7 @@ function updateStatusBarItem (isInit = false) {
 
 	function next (t = interval) {
 		f = setTimeout(() => {
-			updateStatusBarItem();
+			updateStatusBarItem(context);
 		}, t * 1000);
 	}
 
@@ -42,18 +44,15 @@ function updateStatusBarItem (isInit = false) {
 		return name;
 	};
 
-	const hour = new Date().getHours();
-	const minute = new Date().getMinutes();
-	const weekday = new Date().getDay();
-
-	if (!isInit) {
-		// 周六日不更新, 不在 9:00 - 15:10 时间内不更新
-		if ([0, 6].includes(weekday) || hour < 9 || (hour > 15 && minute > 10)) {
-			return next(30);
-		}
+	if (!isInit && await isClosed(context)) {
+		return next(30);
 	}
 
 	if (Array.isArray(stock) && stock.length > 0) {
+		if (isInit && stock.length > 4) {
+			vscode.window.showInformationMessage('提示：气泡详情中最多只能展示4个股票');
+		}
+
 		fetchData(stock).then(res => {
 			const text = res.map(el => {
 				const obj = {
