@@ -1,22 +1,23 @@
+import { setTimeout as setTimeoutPromise } from 'node:timers/promises';
 import * as vscode from 'vscode';
-import { toFixed } from './utils';
+import { toFixed, debounce } from './utils';
 import { fetchData } from './shared/fetchData';
 import { isClosed } from './shared/getHoliday';
 
 const extName = 'statusbar-kanban';
 let myStatusBarItem: vscode.StatusBarItem;
-let f: ReturnType<typeof setTimeout>;
+let ac: AbortController;
 
 export async function activate (context: vscode.ExtensionContext) {
 	myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
 
 	// 监听用户修改配置项
-	vscode.workspace.onDidChangeConfiguration(e => {
+	vscode.workspace.onDidChangeConfiguration(debounce(e => {
 		if (e.affectsConfiguration(extName)) {
-			clearTimeout(f);
+			ac && ac.abort();
 			updateStatusBarItem(context, true);
 		}
-	});
+	}));
 
 	updateStatusBarItem(context, true);
 }
@@ -32,9 +33,10 @@ async function updateStatusBarItem (context: vscode.ExtensionContext, isInit = f
 	const interval = userConfig.get<number>('interval')!;
 
 	function next (t = interval) {
-		f = setTimeout(() => {
-			updateStatusBarItem(context);
-		}, t * 1000);
+		ac && ac.abort();
+		ac = new AbortController();
+		setTimeoutPromise(t * 1000, 'updateStatusBarItem', { signal: ac.signal })
+			.then(() => updateStatusBarItem(context));
 	}
 
 	const getAlias = (code: string, name: string) => {
