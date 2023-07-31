@@ -32,7 +32,12 @@ interface IHoliday {
 
 export async function getHolidayData (): Promise<string[]> {
   const year = new Date().getFullYear();
-  return axios.get<{ code: number; holiday: Record<string, IHoliday> }>('https://timor.tech/api/holiday/year/' + year)
+  return axios<{ code: number; holiday: Record<string, IHoliday> }>({
+    url: 'https://timor.tech/api/holiday/year/' + year,
+    headers: {
+      'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+    },
+  })
     .then(res => res.data)
     .then(res => {
       if (res.code === 0) {
@@ -66,7 +71,7 @@ export async function isClosed (context: vscode.ExtensionContext): Promise<boole
   if (
     [0, 6].includes(new Date().getDay())
     ||
-    openedTime.some(([start, end]) => start.getTime() < Date.now() && Date.now() < end.getTime())
+    openedTime.some(([start, end]) => start.getTime() > Date.now() && Date.now() > end.getTime())
   ) {
     return true;
   }
