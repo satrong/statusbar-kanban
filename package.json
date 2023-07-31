@@ -10,6 +10,10 @@
     "Other"
   ],
   "main": "./dist/extension.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/satrong/statusbar-kanban.git"
+  },
   "activationEvents": [
     "onStartupFinished"
   ],
@@ -20,7 +24,7 @@
         "statusbar-kanban.stock": {
           "type": "array",
           "default": [],
-          "description": "股票代码列表"
+          "description": "股票代码列表，建议不要超过4个"
         },
         "statusbar-kanban.map": {
           "type": "object",
@@ -34,20 +38,20 @@
         },
         "statusbar-kanban.interval": {
           "type": "number",
-          "default": 10,
-          "description": "数据更新时间间隔，单位秒，默认10秒"
+          "default": 5,
+          "description": "数据更新时间间隔，单位秒，默认5秒"
         }
       }
     }
   },
   "scripts": {
-    "vscode:prepublish": "pnpm run package",
+    "build": "npm run package && npx @vscode/vsce package -o ./",
     "compile": "webpack",
     "watch": "webpack --watch",
     "package": "webpack --mode production --devtool hidden-source-map",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
   },
