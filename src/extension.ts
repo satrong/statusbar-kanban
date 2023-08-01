@@ -30,6 +30,7 @@ async function updateStatusBarItem (context: vscode.ExtensionContext, isInit = f
 	const mapped = userConfig.get<Record<string, string>>('map');
 	const tpl = userConfig.get<string>('barTpl')!;
 	const interval = userConfig.get<number>('interval')!;
+	const separator = userConfig.get<string>('separator')!;
 
 	function next (t = interval) {
 		ac && ac.abort();
@@ -65,7 +66,7 @@ async function updateStatusBarItem (context: vscode.ExtensionContext, isInit = f
 					const key = match.slice(1, -1) as keyof typeof obj;
 					return obj[key] ?? match;
 				});
-			}).join('$(debug-stackframe-dot)');
+			}).join(separator);
 			const tooltip = res.map(el => tooltipTemplate(el)).join('\n');
 			myStatusBarItem.text = text;
 			myStatusBarItem.tooltip = new vscode.MarkdownString(tooltip);

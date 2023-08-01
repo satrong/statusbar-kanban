@@ -2,7 +2,7 @@
   "name": "statusbar-kanban",
   "displayName": "状态栏股票看板",
   "description": "",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.79.0"
   },
@@ -41,6 +41,11 @@
           "type": "number",
           "default": 5,
           "description": "数据更新时间间隔，单位秒，默认5秒"
+        },
+        "statusbar-kanban.separator": {
+          "type": "string",
+          "default": "$(debug-stackframe-dot)",
+          "description": "股票代码之间的分隔符"
         }
       }
     }
