@@ -35,7 +35,7 @@ export async function fetchData (stockCode: string[]) {
       };
     });
     const logInfo = result.map(el => `${el.name} 最新：${el.price.toFixed(2)} 昨收：${el.yesterdayPrice.toFixed(2)}`).join('\n');
-    outputChannel.appendLine(`[fetchFund] ${formateDate(null, 'YYYY-MM-DD HH:mm:ss')}\n${logInfo}\n------`);
+    outputChannel.appendLine(`[fetchStock] ${formateDate(null, 'YYYY-MM-DD HH:mm:ss')}\n${logInfo}\n------`);
     return result;
   });
 }
