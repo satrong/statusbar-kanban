@@ -59,8 +59,8 @@ async function updateStatusBarItem (context: vscode.ExtensionContext, isInit = f
 			const text = res.map(el => {
 				const obj = {
 					price: el.price.toFixed(2),
-					change: getSign(el.price - el.yesterdayPrice, 'char'),
-					percent: getSign((el.price - el.yesterdayPrice) / el.yesterdayPrice * 100, 'char') + '%',
+					change: el.price ? getSign(el.price - el.yesterdayPrice, 'char') : '0',
+					percent: el.price ? getSign((el.price - el.yesterdayPrice) / el.yesterdayPrice * 100, 'char') + '%' : '0%',
 				};
 				return getAlias(el.code, el.name) + tpl.replace(/{[a-z]+}/ig, (match) => {
 					const key = match.slice(1, -1) as keyof typeof obj;
