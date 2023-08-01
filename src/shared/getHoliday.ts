@@ -72,7 +72,7 @@ export async function isClosed (context: vscode.ExtensionContext): Promise<boole
   if (
     [0, 6].includes(new Date().getDay())
     ||
-    openedTime.some(([start, end]) => start.getTime() > Date.now() && Date.now() > end.getTime())
+    openedTime.some(([start, end]) => start.getTime() > Date.now() || Date.now() > end.getTime())
   ) {
     return true;
   }
