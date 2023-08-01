@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import axios from 'axios';
-import { getTodayDate } from '../utils';
+import { formateDate } from '../utils';
+import { outputChannel } from './outputLog';
 
 interface IHoliday {
   holiday: boolean;
@@ -46,13 +47,16 @@ export async function getHolidayData (): Promise<string[]> {
       }
       return [];
     })
-    .catch(() => []);
+    .catch((err) => {
+      outputChannel.appendLine(`[fetchHoliday] 获取节假日数据失败 ${err}`);
+      return [];
+    });
 }
 
 export async function isClosed (context: vscode.ExtensionContext): Promise<boolean> {
   const holidayStoreKey = 'holiday';
   let holidays = context.globalState.get<string[]>(holidayStoreKey) ?? [];
-  const todayDate = getTodayDate();
+  const todayDate = formateDate();
 
   if (holidays.length === 0) {
     holidays = await getHolidayData();

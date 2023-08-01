@@ -1,8 +1,7 @@
 import { setTimeout as setTimeoutPromise } from 'node:timers/promises';
 import * as vscode from 'vscode';
 import { toFixed, debounce } from './utils';
-import { fetchData } from './shared/fetchData';
-import { isClosed } from './shared/getHoliday';
+import { fetchData, isClosed, outputChannel } from './shared/index';
 
 const extName = 'statusbar-kanban';
 let myStatusBarItem: vscode.StatusBarItem;
@@ -71,7 +70,9 @@ async function updateStatusBarItem (context: vscode.ExtensionContext, isInit = f
 			myStatusBarItem.text = text;
 			myStatusBarItem.tooltip = new vscode.MarkdownString(tooltip);
 			myStatusBarItem.show();
-		}).finally(() => next());
+		})
+			.catch(err => outputChannel.appendLine(err))
+			.finally(() => next());
 	}
 }
 

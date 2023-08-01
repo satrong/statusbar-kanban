@@ -10,9 +10,32 @@ export function toFixed (num: number | string, fixed = 2) {
 }
 
 /** 格式化日期 */
-export function getTodayDate () {
-  const date = new Date();
-  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+export function formateDate(date: null | Date = null, format = 'YYYY-MM-DD') {
+  const d = date ?? new Date();
+  const year = d.getFullYear();
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+
+  const hour = d.getHours();
+  const minute = d.getMinutes();
+  const second = d.getSeconds();
+
+  const padLeftZero = (str: string | number) => {
+    return String(str).padStart(2, '0');
+  };
+
+  const time = {
+    YYYY: year,
+    MM: padLeftZero(month),
+    DD: padLeftZero(day),
+    HH: padLeftZero(hour),
+    mm: padLeftZero(minute),
+    ss: padLeftZero(second),
+  };
+
+  return format.replace(/(YYYY|MM|DD|HH|mm|ss)/g, (result, key) => {
+    return String(time[key as keyof typeof time]);
+  });
 }
 
 /**

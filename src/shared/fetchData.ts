@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { decode } from 'iconv-lite';
-import {toFixed} from '../utils';
+import { toFixed, formateDate } from '../utils';
+import { outputChannel } from './outputLog';
 
 export async function fetchData (stockCode: string[]) {
   return axios<Buffer>({
@@ -13,7 +14,7 @@ export async function fetchData (stockCode: string[]) {
     timeout: 5000,
   }).then(res => {
     const data = decode(res.data, 'gbk');
-    return data.split(/\n/).flatMap(el => {
+    const result = data.split(/\n/).flatMap(el => {
       const matched = el.match(/(?<=var hq_str_)(\w+)="([^"]+)/);
       if (!matched) {
         return [];
@@ -33,5 +34,8 @@ export async function fetchData (stockCode: string[]) {
         turnover: toFixed(values[9]),
       };
     });
+    const logInfo = result.map(el => `${el.name} 最新：${el.price.toFixed(2)} 昨收：${el.yesterdayPrice.toFixed(2)}`).join('\n');
+    outputChannel.appendLine(`[fetchFund] ${formateDate(null, 'YYYY-MM-DD HH:mm:ss')}\n${logInfo}\n------`);
+    return result;
   });
 }
