@@ -1,54 +1,91 @@
 {
-  "name": "statusbar-kanban",
-  "displayName": "状态栏股票看板",
+  "name": "kanban-bar",
+  "displayName": "状态栏看板",
   "description": "",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.79.0"
   },
-  "publisher": "satrongcao",
+  "publisher": "satrong.cao",
   "categories": [
     "Other"
   ],
   "main": "./dist/extension.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/satrong/statusbar-kanban.git"
+    "url": "https://github.com/satrong/kanban-bar.git"
   },
   "activationEvents": [
     "onStartupFinished"
   ],
   "contributes": {
     "configuration": {
-      "title": "状态栏股票看板",
+      "title": "状态栏看板",
       "properties": {
-        "statusbar-kanban.stock": {
+        "kanban-bar.stock": {
           "type": "array",
           "default": [],
           "description": "股票代码列表，建议不要超过4个"
         },
-        "statusbar-kanban.map": {
+        "kanban-bar.map": {
           "type": "object",
           "default": null,
           "description": "股票代码映射简称，如`{ \"sz300712\": \"YF\" }`"
         },
-        "statusbar-kanban.barTpl": {
+        "kanban-bar.barTpl": {
           "type": "string",
           "default": "{price} {change} {percent}",
           "description": "状态栏模板，可用占位符： 最新价`{price}`, 涨跌幅金额`{change}`, 涨跌百分比`{percent}`"
         },
-        "statusbar-kanban.interval": {
+        "kanban-bar.interval": {
           "type": "number",
           "default": 5,
           "description": "数据更新时间间隔，单位秒，默认5秒"
         },
-        "statusbar-kanban.separator": {
+        "kanban-bar.separator": {
           "type": "string",
           "default": "$(debug-stackframe-dot)",
           "description": "股票代码之间的分隔符"
+        },
+        "kanban-bar.gitlab-merge-tpl": {
+          "type": "string",
+          "default": "$(merge) {count}",
+          "description": "GitLab 合并数量显示模板，占位符：数量`{count}`"
+        },
+        "kanban-bar.gitlab-merge": {
+          "type": "array",
+          "gitlab": {
+            "type": "array",
+            "default": [],
+            "description": "GitLab 配置",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "description": "GitLab 服务器的 URL"
+                },
+                "id": {
+                  "type": "string",
+                  "description": "GitLab 项目的 ID 或 使用 `namespace/project` 格式的完整路径"
+                },
+                "token": {
+                  "type": "string",
+                  "description": "访问 GitLab API 所需的访问令牌"
+                }
+              },
+              "required": ["url", "id", "token"]
+            }
+          }
         }
       }
-    }
+    },
+    "commands": [
+      {
+        "command": "kanban-bar.open",
+        "title": "打开链接"
+      }
+    ]
   },
   "scripts": {
     "build": "npm run package && npx @vscode/vsce package -o ./",
