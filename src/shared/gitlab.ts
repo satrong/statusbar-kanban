@@ -2,6 +2,8 @@ import { setTimeout as setTimeoutPromise } from 'node:timers/promises';
 import * as vscode from 'vscode';
 import axios from 'axios';
 import { extName } from '../config';
+import { outputChannel } from './outputLog';
+import { getInterval } from '../utils';
 
 interface GitlabConfig {
   url: string;
@@ -32,10 +34,10 @@ interface MergeRequest {
 export class GitlabMergeRequestsService {
   gitlabConfig: GitlabConfig[] = [];
   gitlabTpl: string = '';
-  interval = 5;
+  interval = getInterval(null);
   myStatusBarItem: vscode.StatusBarItem;
   ac: AbortController | null = null;
-  openCommand = 'kanban-bar.open';
+  openCommand = 'kanban-bar.open-gitlab';
   firstMergeRequestLink = '';
   /** 上一次请求的数据 */
   prevRequestDataIds: number[] = [];
@@ -47,20 +49,25 @@ export class GitlabMergeRequestsService {
     const disposable = vscode.commands.registerCommand(this.openCommand, () => this.openLink());
     context.subscriptions.push(disposable);
 
-    vscode.workspace.onDidChangeConfiguration(() => {
-      this.start(true);
+    this.updateConfig();
+    this.start();
+
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(extName)) {
+        this.start(true);
+      }
     });
   }
 
-  start (abort = false) {
+  private start (abort = false) {
     abort && this.ac?.abort();
-    this.updateConfig();
-    this.updateStatusBarItem();
 
-    this.ac = new AbortController();
+    this.updateStatusBarItem().finally(() => {
+      this.ac = new AbortController();
 
-    setTimeoutPromise(this.interval, { signal: this.ac.signal }).then(() => {
-      this.start();
+      setTimeoutPromise(this.interval, 'ok', { signal: this.ac.signal }).then(() => {
+        this.start();
+      });
     });
   }
 
@@ -72,7 +79,7 @@ export class GitlabMergeRequestsService {
 
   private updateConfig () {
     const userConfig = vscode.workspace.getConfiguration(extName);
-    this.interval = userConfig.get<number>('interval') ?? 5;
+    this.interval = getInterval(userConfig.get<number>('interval'));
     this.gitlabConfig = userConfig.get<GitlabConfig[]>('gitlab-merge') ?? [];
     this.gitlabTpl = userConfig.get<string>('gitlab-merge-tpl') ?? '$(merge) {count}';
   }
@@ -86,14 +93,22 @@ export class GitlabMergeRequestsService {
       return;
     }
 
-    const p = this.gitlabConfig.map(async (config) => {
-      const id = /^\d+$/.test(config.id) ? config.id : encodeURIComponent(config.id);
-      const apiUrl = `${config.url}/api/v4/projects/${id}/merge_requests?state=opened`;
-      return axios.get<MergeRequest[]>(apiUrl, {
-        headers: {
-          'Private-Token': `${config.token}`
-        }
-      }).then(res => res.data);
+    const p = this.gitlabConfig.flatMap(async (config) => {
+      if (config.id && config.token && config.url) {
+        const id = /^\d+$/.test(config.id) ? config.id : encodeURIComponent(config.id);
+        const apiUrl = `${config.url}/api/v4/projects/${id}/merge_requests?state=opened`;
+        return axios.get<MergeRequest[]>(apiUrl, {
+          headers: {
+            'Private-Token': `${config.token}`
+          }
+        })
+          .then(res => res.data)
+          .catch(err => {
+            outputChannel.appendLine(`[GitLab] ${err.message}`);
+            return [];
+          });
+      }
+      return [];
     });
 
     return Promise.all(p);

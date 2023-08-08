@@ -22,6 +22,11 @@
     "configuration": {
       "title": "状态栏看板",
       "properties": {
+        "kanban-bar.interval": {
+          "type": "number",
+          "default": 7000,
+          "description": "数据更新时间间隔，单位 ms，默认 `7000` 毫秒。最小值 `5000`"
+        },
         "kanban-bar.stock": {
           "type": "array",
           "default": [],
@@ -54,36 +59,37 @@
         },
         "kanban-bar.gitlab-merge": {
           "type": "array",
-          "gitlab": {
-            "type": "array",
-            "default": [],
-            "description": "GitLab 配置",
-            "items": {
-              "type": "object",
-              "properties": {
-                "url": {
-                  "type": "string",
-                  "description": "GitLab 服务器的 URL"
-                },
-                "id": {
-                  "type": "string",
-                  "description": "GitLab 项目的 ID 或 使用 `namespace/project` 格式的完整路径"
-                },
-                "token": {
-                  "type": "string",
-                  "description": "访问 GitLab API 所需的访问令牌"
-                }
+          "default": [],
+          "description": "GitLab 配置",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "GitLab 服务器的 URL"
               },
-              "required": ["url", "id", "token"]
-            }
+              "id": {
+                "type": "string",
+                "description": "GitLab 项目的 ID 或 使用 `namespace/project` 格式的完整路径"
+              },
+              "token": {
+                "type": "string",
+                "description": "访问 GitLab API 所需的访问令牌"
+              }
+            },
+            "required": [
+              "url",
+              "id",
+              "token"
+            ]
           }
         }
       }
     },
     "commands": [
       {
-        "command": "kanban-bar.open",
-        "title": "打开链接"
+        "command": "kanban-bar.open-gitlab",
+        "title": "打开GitLab链接"
       }
     ]
   },

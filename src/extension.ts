@@ -21,7 +21,7 @@ export async function activate (context: vscode.ExtensionContext) {
 
 	updateStatusBarItem(context, true);
 
-	new GitlabMergeRequestsService(context).start();
+	new GitlabMergeRequestsService(context);
 }
 
 /**

@@ -1,4 +1,6 @@
 import { setTimeout as setTimeoutPromise } from 'node:timers/promises';
+import { createHash } from 'node:crypto';
+
 /** 保留小数位数 */
 export function toFixed (num: number | string, fixed = 2) {
   const re = new RegExp(`^-?\\d+(?:\.\\d{0,${fixed || -1}})?`);
@@ -10,7 +12,7 @@ export function toFixed (num: number | string, fixed = 2) {
 }
 
 /** 格式化日期 */
-export function formateDate(date: null | Date = null, format = 'YYYY-MM-DD') {
+export function formateDate (date: null | Date = null, format = 'YYYY-MM-DD') {
   const d = date ?? new Date();
   const year = d.getFullYear();
   const month = d.getMonth() + 1;
@@ -51,4 +53,16 @@ export function debounce<T extends any[]> (fn: (...args: T) => void, delay = 500
       .then(() => fn(...args))
       .catch(() => { });
   };
+}
+
+export function md5 (str: string) {
+  return createHash('md5').update(str).digest('hex');
+}
+
+/** 默认及最小值为 `5000` */
+export function getInterval (val: number | undefined | null, min = 5000) {
+  if (val === undefined || val === null) {
+    return min;
+  }
+  return Math.max(val, min);
 }
