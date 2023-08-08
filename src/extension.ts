@@ -1,9 +1,8 @@
 import { setTimeout as setTimeoutPromise } from 'node:timers/promises';
 import * as vscode from 'vscode';
 import { toFixed, debounce } from './utils';
-import { fetchData, isClosed, outputChannel, GitlabMergeRequestsService } from './shared/index';
+import { fetchData, isClosed, outputChannel, GitlabMergeRequestsService, ZentaoService } from './shared/index';
 import { extName } from './config';
-
 
 let myStatusBarItem: vscode.StatusBarItem;
 let ac: AbortController;
@@ -22,6 +21,7 @@ export async function activate (context: vscode.ExtensionContext) {
 	updateStatusBarItem(context, true);
 
 	new GitlabMergeRequestsService(context);
+	new ZentaoService(context);
 }
 
 /**

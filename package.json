@@ -83,6 +83,31 @@
               "token"
             ]
           }
+        },
+        "kanban-bar.zentao-tpl": {
+          "type": "string",
+          "default": "$(tasklist) {wait} / {doing}",
+          "description": "禅道 问题数量显示模板，占位符：未开始`{wait}`, 进行中`{doing}`"
+        },
+        "kanban-bar.zentao-url": {
+          "type": "string",
+          "default": "",
+          "description": "禅道服务器的地址，如 `http://zentao.com`"
+        },
+        "kanban-bar.zentao": {
+          "type": "object",
+          "default": null,
+          "description": "禅道配置",
+          "properties": {
+            "account": {
+              "type": "string",
+              "description": "禅道账号"
+            },
+            "password": {
+              "type": "string",
+              "description": "禅道密码"
+            }
+          }
         }
       }
     },
@@ -90,6 +115,10 @@
       {
         "command": "kanban-bar.open-gitlab",
         "title": "打开GitLab链接"
+      },
+      {
+        "command": "kanban-bar.open-zentao",
+        "title": "打开禅道链接"
       }
     ]
   },
