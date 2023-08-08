@@ -1,6 +1,6 @@
 import { setTimeout as setTimeoutPromise } from 'node:timers/promises';
 import * as vscode from 'vscode';
-import { toFixed, debounce } from './utils';
+import { toFixed, debounce, getInterval } from './utils';
 import { fetchData, isClosed, outputChannel, GitlabMergeRequestsService, ZentaoService } from './shared/index';
 import { extName } from './config';
 
@@ -29,16 +29,16 @@ export async function activate (context: vscode.ExtensionContext) {
  */
 async function updateStatusBarItem (context: vscode.ExtensionContext, isInit = false) {
 	const userConfig = vscode.workspace.getConfiguration(extName);
-	const stock = userConfig.get<string[]>('stock');
-	const mapped = userConfig.get<Record<string, string>>('map');
-	const tpl = userConfig.get<string>('barTpl')!;
-	const interval = userConfig.get<number>('interval')!;
-	const separator = userConfig.get<string>('separator')!;
+	const stocks = userConfig.get<string[]>('stocks');
+	const mapped = userConfig.get<Record<string, string>>('stock-map');
+	const tpl = userConfig.get<string>('stock-tpl')!;
+	const interval = getInterval(userConfig.get<number>('interval'));
+	const separator = userConfig.get<string>('stock-separator')!;
 
 	function next (t = interval) {
 		ac && ac.abort();
 		ac = new AbortController();
-		setTimeoutPromise(t * 1000, 'updateStatusBarItem', { signal: ac.signal })
+		setTimeoutPromise(t, 'updateStatusBarItem', { signal: ac.signal })
 			.then(() => updateStatusBarItem(context));
 	}
 
@@ -50,15 +50,15 @@ async function updateStatusBarItem (context: vscode.ExtensionContext, isInit = f
 	};
 
 	if (!isInit && await isClosed(context)) {
-		return next(30);
+		return next(30000);
 	}
 
-	if (Array.isArray(stock) && stock.length > 0) {
-		if (isInit && stock.length > 4) {
+	if (Array.isArray(stocks) && stocks.length > 0) {
+		if (isInit && stocks.length > 4) {
 			vscode.window.showInformationMessage('提示：气泡详情中最多只能展示4个股票');
 		}
 
-		fetchData(stock).then(res => {
+		fetchData(stocks).then(res => {
 			const text = res.map(el => {
 				const obj = {
 					price: el.price.toFixed(2),

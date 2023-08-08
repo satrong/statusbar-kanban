@@ -1,8 +1,8 @@
 {
   "name": "kanban-bar",
   "displayName": "状态栏看板",
-  "description": "",
-  "version": "0.1.0",
+  "description": "一个大杂烩看板",
+  "version": "0.2.5",
   "engines": {
     "vscode": "^1.70.0"
   },
@@ -27,27 +27,21 @@
           "default": 7000,
           "description": "数据更新时间间隔，单位 ms，默认 `7000` 毫秒。最小值 `5000`"
         },
-        "kanban-bar.stock": {
+        "kanban-bar.stocks": {
           "type": "array",
           "default": [],
           "description": "股票代码列表，建议不要超过4个"
         },
-        "kanban-bar.map": {
+        "kanban-bar.stock-map": {
           "type": "object",
-          "default": null,
           "description": "股票代码映射简称，如`{ \"sz300712\": \"YF\" }`"
         },
-        "kanban-bar.barTpl": {
+        "kanban-bar.stock-tpl": {
           "type": "string",
           "default": "{price} {change} {percent}",
           "description": "状态栏模板，可用占位符： 最新价`{price}`, 涨跌幅金额`{change}`, 涨跌百分比`{percent}`"
         },
-        "kanban-bar.interval": {
-          "type": "number",
-          "default": 5,
-          "description": "数据更新时间间隔，单位秒，默认5秒"
-        },
-        "kanban-bar.separator": {
+        "kanban-bar.stock-separator": {
           "type": "string",
           "default": "$(debug-stackframe-dot)",
           "description": "股票代码之间的分隔符"
@@ -136,7 +130,7 @@
   "devDependencies": {
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
-    "@types/node": "20.2.5",
+    "@types/node": "~16.11.0",
     "@types/vscode": "^1.70.0",
     "@typescript-eslint/eslint-plugin": "^5.59.8",
     "@typescript-eslint/parser": "^5.59.8",
