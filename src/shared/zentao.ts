@@ -83,7 +83,7 @@ export class ZentaoService {
     this.statusBarItem.command = this.openCommand;
 
     context.subscriptions.push(
-      vscode.commands.registerCommand(this.openCommand, () => vscode.env.openExternal(vscode.Uri.parse('https://zentaopms.izehui.com/my-work-task.html')))
+      vscode.commands.registerCommand(this.openCommand, () => vscode.env.openExternal(vscode.Uri.parse('https://zentaopms.izehui.com/my-work-task-assignedTo-status_asc-0-20-1.html')))
     );
 
     this.updateConfig();
