@@ -2,7 +2,7 @@
   "name": "kanban-bar",
   "displayName": "状态栏看板",
   "description": "一个大杂烩看板",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "engines": {
     "vscode": "^1.70.0"
   },
