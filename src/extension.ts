@@ -3,19 +3,15 @@ import * as vscode from 'vscode';
 import { toFixed, debounce, getInterval } from './utils';
 import { fetchData, isClosed, outputChannel, GitlabMergeRequestsService, ZentaoService } from './shared/index';
 import { extName } from './config';
+import ProxySwitcher from './switchers/proxy';
 
 let myStatusBarItem: vscode.StatusBarItem;
-let proxySwitcherStatusBarItem: vscode.StatusBarItem;
 let ac: AbortController;
 
-// 注册点击状态栏的事件
-vscode.commands.registerCommand(`${extName}.switchProxy`, switchProxy);
+const proxySwitcher = new ProxySwitcher(99);
 
 export async function activate(context: vscode.ExtensionContext) {
 	myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-
-	proxySwitcherStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 99);
-	proxySwitcherStatusBarItem.command = `${extName}.switchProxy`;
 
 	// 监听用户修改配置项
 	vscode.workspace.onDidChangeConfiguration(debounce(e => {
@@ -26,6 +22,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	}));
 
 	updateStatusBarItem(context, true);
+	proxySwitcher.init();
 
 	new GitlabMergeRequestsService(context);
 	new ZentaoService(context);
@@ -41,16 +38,6 @@ async function updateStatusBarItem(context: vscode.ExtensionContext, isInit = fa
 	const tpl = userConfig.get<string>('stock-tpl')!;
 	const interval = getInterval(userConfig.get<number>('interval'));
 	const separator = userConfig.get<string>('stock-separator')!;
-
-	const proxyList = vscode.workspace.getConfiguration(extName).get<{ label: string, url: string }[]>('proxy-list') || [];
-	const currentProxy = vscode.workspace.getConfiguration('http').get<string>('proxy');
-	const currentProxyConfig = proxyList?.find(el => el.url === currentProxy) || null;
-
-	if (proxyList.length > 0) {
-		proxySwitcherStatusBarItem.text = currentProxyConfig?.label || '😧';
-		proxySwitcherStatusBarItem.tooltip = currentProxyConfig?.url || '';
-		proxySwitcherStatusBarItem.show();
-	}
 
 	function next(t = interval) {
 		ac && ac.abort();
@@ -136,21 +123,6 @@ function getUnit(num: number) {
 	}
 	return num;
 };
-
-function switchProxy() {
-	const proxyList = vscode.workspace.getConfiguration(extName).get<{ label: string, url: string }[]>('proxy-list') || [];
-	const currentProxy = vscode.workspace.getConfiguration('http').get<string>('proxy');
-	let index = proxyList.findIndex(el => el.url === currentProxy);
-
-	if (index === -1) {
-		vscode.workspace.getConfiguration('http').update('proxy', proxyList[0].url, vscode.ConfigurationTarget.Global);
-	} else {
-		index = index === proxyList.length - 1 ? 0 : index + 1;
-		vscode.workspace.getConfiguration('http').update('proxy', proxyList[index].url, vscode.ConfigurationTarget.Global);
-	}
-	proxySwitcherStatusBarItem.text = proxyList[index].label;
-	proxySwitcherStatusBarItem.tooltip = proxyList[index].url;
-}
 
 // This method is called when your extension is deactivated
 export function deactivate() { }
