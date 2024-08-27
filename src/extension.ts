@@ -5,7 +5,7 @@ import { fetchData, isClosed, outputChannel, GitlabMergeRequestsService, ZentaoS
 import { extName } from './config';
 
 let myStatusBarItem: vscode.StatusBarItem;
-let switcherStatusBarItem: vscode.StatusBarItem;
+let proxySwitcherStatusBarItem: vscode.StatusBarItem;
 let ac: AbortController;
 
 // 注册点击状态栏的事件
@@ -14,8 +14,8 @@ vscode.commands.registerCommand(`${extName}.switchProxy`, switchProxy);
 export async function activate(context: vscode.ExtensionContext) {
 	myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
 
-	switcherStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 99);
-	switcherStatusBarItem.command = `${extName}.switchProxy`;
+	proxySwitcherStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 99);
+	proxySwitcherStatusBarItem.command = `${extName}.switchProxy`;
 
 	// 监听用户修改配置项
 	vscode.workspace.onDidChangeConfiguration(debounce(e => {
@@ -47,9 +47,9 @@ async function updateStatusBarItem(context: vscode.ExtensionContext, isInit = fa
 	const currentProxyConfig = proxyList?.find(el => el.url === currentProxy) || null;
 
 	if (proxyList.length > 0) {
-		switcherStatusBarItem.text = currentProxyConfig?.label || '😧';
-		switcherStatusBarItem.tooltip = currentProxyConfig?.url || '';
-		switcherStatusBarItem.show();
+		proxySwitcherStatusBarItem.text = currentProxyConfig?.label || '😧';
+		proxySwitcherStatusBarItem.tooltip = currentProxyConfig?.url || '';
+		proxySwitcherStatusBarItem.show();
 	}
 
 	function next(t = interval) {
@@ -148,8 +148,8 @@ function switchProxy() {
 		index = index === proxyList.length - 1 ? 0 : index + 1;
 		vscode.workspace.getConfiguration('http').update('proxy', proxyList[index].url, vscode.ConfigurationTarget.Global);
 	}
-	switcherStatusBarItem.text = proxyList[index].label;
-	switcherStatusBarItem.tooltip = proxyList[index].url;
+	proxySwitcherStatusBarItem.text = proxyList[index].label;
+	proxySwitcherStatusBarItem.tooltip = proxyList[index].url;
 }
 
 // This method is called when your extension is deactivated
