@@ -3,14 +3,11 @@ import * as vscode from 'vscode';
 import { toFixed, debounce, getInterval } from './utils';
 import { fetchData, isClosed, outputChannel, GitlabMergeRequestsService, ZentaoService } from './shared/index';
 import { extName } from './config';
-import ProxySwitcher from './switchers/proxy';
 
 let myStatusBarItem: vscode.StatusBarItem;
 let ac: AbortController;
 
-const proxySwitcher = new ProxySwitcher(99);
-
-export async function activate(context: vscode.ExtensionContext) {
+export async function activate (context: vscode.ExtensionContext) {
 	myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
 
 	// 监听用户修改配置项
@@ -22,7 +19,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	}));
 
 	updateStatusBarItem(context, true);
-	proxySwitcher.init();
 
 	new GitlabMergeRequestsService(context);
 	new ZentaoService(context);
@@ -31,7 +27,7 @@ export async function activate(context: vscode.ExtensionContext) {
 /**
  * @param isInit 是否是初始化，如果是初始化则忽略非交易时间
  */
-async function updateStatusBarItem(context: vscode.ExtensionContext, isInit = false) {
+async function updateStatusBarItem (context: vscode.ExtensionContext, isInit = false) {
 	const userConfig = vscode.workspace.getConfiguration(extName);
 	const stocks = userConfig.get<string[]>('stocks');
 	const mapped = userConfig.get<Record<string, string>>('stock-map');
@@ -39,7 +35,7 @@ async function updateStatusBarItem(context: vscode.ExtensionContext, isInit = fa
 	const interval = getInterval(userConfig.get<number>('interval'));
 	const separator = userConfig.get<string>('stock-separator')!;
 
-	function next(t = interval) {
+	function next (t = interval) {
 		ac && ac.abort();
 		ac = new AbortController();
 		setTimeoutPromise(t, 'updateStatusBarItem', { signal: ac.signal })
@@ -84,7 +80,7 @@ async function updateStatusBarItem(context: vscode.ExtensionContext, isInit = fa
 	}
 }
 
-function tooltipTemplate(data: Awaited<ReturnType<typeof fetchData>>[number]) {
+function tooltipTemplate (data: Awaited<ReturnType<typeof fetchData>>[number]) {
 	const space = '&nbsp;&nbsp;';
 	return `|${data.name}|&nbsp;|&nbsp;|&nbsp;|
 |:---|:---|:---|:---|
@@ -95,7 +91,7 @@ function tooltipTemplate(data: Awaited<ReturnType<typeof fetchData>>[number]) {
 }
 
 // 显示数值的正负号
-function getSign(num: number, type: 'icon' | 'char' | 'emoji') {
+function getSign (num: number, type: 'icon' | 'char' | 'emoji') {
 	const map = {
 		icon: {
 			'up': '$(chevron-up)',
@@ -114,7 +110,7 @@ function getSign(num: number, type: 'icon' | 'char' | 'emoji') {
 };
 
 // 数值转换 亿万
-function getUnit(num: number) {
+function getUnit (num: number) {
 	if (num >= 100000000) {
 		return toFixed(num / 100000000) + ' 亿';
 	}
@@ -125,4 +121,4 @@ function getUnit(num: number) {
 };
 
 // This method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate () { }

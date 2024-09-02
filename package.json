@@ -2,7 +2,7 @@
   "name": "kanban-bar",
   "displayName": "状态栏看板",
   "description": "一个大杂烩看板",
-  "version": "0.3.0",
+  "version": "0.2.5",
   "engines": {
     "vscode": "^1.70.0"
   },
@@ -100,26 +100,6 @@
             "password": {
               "type": "string",
               "description": "禅道密码"
-            }
-          }
-        },
-        "kanban-bar.proxy-list": {
-          "type": "array",
-          "description": "代理配置切换列表",
-          "default": [],
-          "items": {
-            "type": "object",
-            "properties": {
-              "label": {
-                "type": "string",
-                "description": "显示在状态栏中的标签名",
-                "default": "Proxy"
-              },
-              "url": {
-                "type": "string",
-                "description": "代理地址",
-                "default": ""
-              }
             }
           }
         }
